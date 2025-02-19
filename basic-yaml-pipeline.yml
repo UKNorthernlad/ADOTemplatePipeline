@@ -1,0 +1,81 @@
+name: "Basic YAML Pipeline with Stages, jobs and parameters"
+
+trigger:
+  - none
+
+parameters:
+  - name: enableImportantThing
+    displayName: Enable that really important thing that needs enabling
+    type: boolean
+    default: true
+ 
+  - name: targetHostPool
+    displayName: Host Pool to deploy to
+    type: string
+    default: Pool1
+    values: 
+    - Pool1
+    - Pool2
+    - Pool3
+    - Pool4
+    - Pool5
+
+  - name: zoneNumber
+    displayName: Zone to deploy to.
+    type: string
+    default: Z1
+    values: 
+    - Z1
+    - Z2
+    - Z3
+
+variables:
+  solution: '**/*.sln'
+  buildPlatform: 'Any CPU'
+  buildConfiguration: 'Release'
+
+stages:
+- stage: CompileAndBuild
+
+  pool:
+    vmImage: 'windows-latest'
+    #name: 'MyOnPremBuildMachines'
+
+  jobs:
+  - job:
+    displayName: "Compiling 32bit Job"
+    steps:
+      - task: NuGetToolInstaller@1
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: |
+            # Write your PowerShell commands here.
+             Write-Host "Hello UAT 32bit"
+  - job:
+    displayName: "Compiling 64bit job"
+    steps:
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: |
+            # Write your PowerShell commands here.
+             Write-Host "Compiling Hello UAT 64bit"
+
+- stage: DeployToProduction
+
+  pool:
+    vmImage: 'windows-latest'
+    #name: 'MyOnPremBuildMachines'
+
+  jobs:
+  - job:
+    displayName: "Deploying job"
+    steps:
+      - task: NuGetToolInstaller@1
+      - task: PowerShell@2
+        inputs:
+          targetType: 'inline'
+          script: |
+            # Write your PowerShell commands here.
+             Write-Host "Hello Production"
